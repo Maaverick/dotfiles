@@ -1,0 +1,5 @@
+# Startup
+# exec --no-startup-id picom
+exec --no-startup-id dunst
+exec --no-startup-id barrier
+exec --no-startup-id ~/.i3/startup
