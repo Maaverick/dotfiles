@@ -26,7 +26,7 @@ font xft:Consolas
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec ghostty
+bindsym $mod+Return exec terminator
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -202,4 +202,4 @@ for_window [class="^.*"] border pixel 0
 exec --no-startup-id dunst
 #exec --no-startup-id barrier
 exec --no-startup-id ~/.i3/startup
-# exec --no-startup-id feh --randomize --bg-fill /home/dax/docs/wallpaper
+# exec --no-startup-id feh --randomize --bg-fill /home/maverick/wallpaper

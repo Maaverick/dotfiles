@@ -1,6 +1,7 @@
 arp-scan
 autoconf
 base
+man
 base-devel
 direnv
 autojump-rs
@@ -61,6 +62,7 @@ unzip
 wget
 xclip
 yt-dlp
+imagemagick
 zip
 zsh
 btop
