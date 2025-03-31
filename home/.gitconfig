@@ -1,3 +1,7 @@
 [user]
 	email = m@example.com
 	name = Maverick H.
+[core]
+	editor = /usr/bin/vim
+[pull]
+	rebase = true

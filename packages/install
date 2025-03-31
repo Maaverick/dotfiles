@@ -3,6 +3,6 @@
 export HOST=$(hostname)
 for file in ./group/$HOST/*; do
     echo "installing $file"
-    sudo pacman -D --asexplicit - < "$file"
+    sudo pacman -S --asexplicit - < "$file"
     paru -S --asexplicit --needed - < "$file"
 done
