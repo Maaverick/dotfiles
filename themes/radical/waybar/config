@@ -1,0 +1,98 @@
+// -*- mode: json -*-
+
+{
+	"layer": "top",
+	"position": "bottom",
+
+	"modules-left": [
+		"hyprland/workspaces",
+	],
+	"modules-center": [
+	],
+	"modules-right": [
+    		"network",
+		"pulseaudio",
+		"wireplumber",
+    		"memory",
+		"cpu",
+		"battery",
+		"disk",
+		"clock#1",
+		"clock#2",
+		"tray"
+	],
+
+  "hyprland/workspaces": {
+		"disable-scroll": true,
+		"format": "{name}"
+	},
+
+  "network": {
+    "format-wifi": "WIFI:  {ifname} {essid} {ipaddr} {gwaddr} ({signalStrength}%) {frequency}Ghz", 
+    "format-ethernet": "LAN: {ipaddr}",
+    "format-disconnected": "Disconnected",
+    "interval": 1
+  },
+	"pulseaudio": {
+		"format": "{icon} {volume:2}%",
+		"format-bluetooth": "{icon}  {volume}%",
+		"format-muted": "MUTE",
+		"format-icons": {
+			"headphones": "",
+			"default": [
+				"",
+				""
+			]
+		},
+		"scroll-step": 5,
+		"on-click": "wpctl set-mute @DEFAULT_SINK@ toggle",
+		"on-click-right": "pavucontrol"
+	},
+  "wireplumber": {
+    "format": "MIC {volume}%",
+    "format-muted": "MUTE",
+    "node-type": "Audio/Source",
+    "scroll-step": 5,
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle",
+    "on-click-right": "pavucontrol"
+  },
+	"memory": {
+		"interval": 5,
+		"format": "Mem {used}GiB {avail}GiB Swap {swapAvail}GiB"
+	},
+	"cpu": {
+		"interval": 5,
+		"format": "CPU {load}"
+	},
+	"battery": {
+		"states": {
+			"good": 95,
+			"warning": 30,
+			"critical": 15
+		},
+		"format": "{icon} {capacity}%",
+		"format-icons": [
+			"",
+			"",
+			"",
+			"",
+			""
+		]
+	},
+	"disk": {
+		"interval": 5,
+		"format": "Disk {used}/{total} ({percentage_used:2}%)",
+		"path": "/"
+	},
+	"clock#1": {
+		"format": "{:%Y-%m-%d}",
+		"tooltip": false
+	},
+	"clock#2": {
+		"format": "{:%H:%M}",
+		"tooltip": false
+	},
+	"tray": {
+		"icon-size": 20
+	}
+}

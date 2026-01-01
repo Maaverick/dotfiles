@@ -1,0 +1,53 @@
+* {
+  font-size: 10px;
+  font-family: "Hasklug Nerd Font Mono";
+}
+
+window#waybar {
+  background: #141322;
+  color: #94b4c4;
+}
+
+#pulseaudio,
+#memory,
+#cpu,
+#battery,
+#disk,
+#network,
+#tray {
+  color: #94b4c4;
+}
+
+#workspaces button {
+  padding: 0 2px;
+  color: #fdf6e3;
+}
+
+#workspaces button.focused {
+  color: #ff1998;
+}
+
+#workspaces button:hover {
+  box-shadow: inherit;
+  text-shadow: inherit;
+}
+
+#workspaces button:hover {
+  background: #ff1998;
+  border: #ff1998;
+  padding: 0 3px;
+}
+
+#clock {
+  padding: 0 4px;
+}
+
+#network,
+#pulseaudio,
+#wireplumber,
+#memory,
+#cpu,
+#battery,
+#disk {
+  padding: 0 10px;
+}

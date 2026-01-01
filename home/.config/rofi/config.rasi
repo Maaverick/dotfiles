@@ -1,0 +1,44 @@
+/* Rofi configuration file */
+
+/* Theme selection */
+@theme "/home/maverick/.local/share/rofi/themes/radicale.rasi"
+
+/* Global settings */
+configuration {
+    /* Behavior settings */
+    show-icons: false;
+    display-run: "➤";
+    display-drun: "➤";
+    display-window: "➤";
+    display-ssh: "➤";
+    
+    /* Search behavior */
+    matching: "fuzzy";
+    tokenize: true;
+    
+    /* Positioning */
+    location: 0;  /* Centered */
+    yoffset: 0;
+    xoffset: 0;
+    
+    /* Appearance */
+    fake-transparency: false;
+    hide-scroll: true;
+    fullscreen: false;
+    
+    /* Performance */
+    disable-history: false;
+    sort: true;
+    case-sensitive: false;
+    
+    /* Layout */
+    sidebar-mode: false;
+    eh: 1;  /* Number of entries */
+    auto-select: false;
+    parse-hosts: false;
+    parse-known-hosts: false;
+    
+    /* Completions */
+    combi-modi: "window,run,drun,ssh";
+    pid: "/run/user/1000/rofi.pid";
+}
