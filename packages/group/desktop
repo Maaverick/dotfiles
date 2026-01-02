@@ -58,6 +58,9 @@ mpv
 qbittorrent
 wezterm
 hyprland-git
+hyprutils-git
+hypridle-git
+brightnessctl
 waybar
 grim
 slurp
