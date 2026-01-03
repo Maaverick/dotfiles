@@ -70,8 +70,10 @@
 			"warning": 30,
 			"critical": 15
 		},
-		"format": "{icon} {capacity}%",
-		"format-icons": [
+		"format": "BAT {icon} {capacity}%",
+		"format-charging": "AC {icon} {capacity}%",
+    "format-plugged":"AC {icon} {capacity}%",
+    "format-icons": [
 			"",
 			"",
 			"",
