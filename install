@@ -5,16 +5,3 @@ echo "Symlinked home..."
 
 . ~/dotfiles/custom/install
 
-#CUSTOM_BLOCK='
-## >>> customrc >>>
-#CUSTOM_RC="$HOME/dotfiles/custom"
-#
-#[ -f "$CUSTOM_RC/envrc" ]   && . "$CUSTOM_RC/envrc"
-#[ -f "$CUSTOM_RC/aliasrc" ] && . "$CUSTOM_RC/aliasrc"
-#[ -f "$CUSTOM_RC/gitrc" ]   && . "$CUSTOM_RC/gitrc"
-#
-## <<< customrc <<<
-#'
-#
-#grep -q '>>> customrc >>>' ~/.bashrc || printf '%s\n' "$CUSTOM_BLOCK" >> ~/.bashrc
-#echo "Appended .bashrc..."

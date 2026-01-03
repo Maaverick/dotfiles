@@ -20,3 +20,14 @@ vim.keymap.set("v", "<leader>R", function()
 		end
 	end)
 end, opts)
+vim.keymap.set("n", "<leader>g", function()
+  local dir = vim.fn.expand("%:p:h")
+  local socket = "unix:/tmp/kitty-" .. (vim.env.KITTY_PID or "")
+
+  if socket then
+    local cmd = string.format('KITTY_LISTEN_ON=%s kitty @ launch --cwd="%s" --type=window lazygit', socket, dir)
+    vim.cmd("silent !" .. cmd)
+  else
+    vim.notify("No Kitty socket found. Remote control not enabled in Kitty.", vim.log.levels.ERROR)
+  end
+end, { desc = "Open kitty split with neogit in buffer directory" })

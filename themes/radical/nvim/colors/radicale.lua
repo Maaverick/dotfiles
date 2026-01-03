@@ -204,12 +204,12 @@ local highlights = {
   Macro = { fg = colors.lavender_light },
   PreCondit = { fg = colors.lavender },
   
-  Type = { fg = colors.lavender_dark, italic = true },
+  Type = { fg = colors.lavender_light, italic = true },
   StorageClass = { fg = colors.ultra_medium },
   Structure = { fg = colors.lavender },
   Typedef = { fg = colors.lavender },
   
-  Special = { fg = colors.chartreuse_medium },
+  Special = { fg = colors.lavender_light },
   SpecialChar = { fg = colors.chartreuse_medium },
   Tag = { fg = colors.primary },
   Delimiter = { fg = colors.gray_300 },
@@ -254,11 +254,11 @@ local highlights = {
   DiagnosticUnderlineHint = { underline = true, sp = colors.chartreuse },
   
 -- Treesitter (semantic highlighting)
-  ["@keyword"] = { fg = colors.ultra_dark },
+  ["@keyword"] = { fg = colors.ultra_medium },
   ["@keyword.coroutine"] = { fg = colors.ultra },
   ["@keyword.function"] = { fg = colors.ultra_dark },
   ["@keyword.operator"] = { fg = colors.ultra_medium },
-  ["@keyword.import"] = { fg = colors.lavender },
+  ["@keyword.import"] = { fg = colors.ultra_dark },
   ["@keyword.type"] = { fg = colors.ultra_medium },
   ["@keyword.modifier"] = { fg = colors.ultra_medium },
   ["@keyword.repeat"] = { fg = colors.ultra_dark },
@@ -331,6 +331,7 @@ local highlights = {
   GitSignsAddLn = { bg = colors.git_added },
   GitSignsChangeLn = { bg = colors.git_modified },
   GitSignsDeleteLn = { bg = colors.git_deleted },
+  GitSignsCurrentLineBlame = { fg = colors.vscode_purple },
   
   -- Telescope
   TelescopeNormal = { fg = colors.fg, bg = colors.bg_dark },

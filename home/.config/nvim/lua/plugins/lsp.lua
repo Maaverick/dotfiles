@@ -48,32 +48,38 @@ return {
           "lua_ls",
         },
       })
-      require("mason-lspconfig").setup_handlers({
-        function(server_name) -- default handler (optional)
-          require("lspconfig")[server_name].setup({})
-        end,
-        ["vtsls"] = function()
-          require("lspconfig").vtsls.setup({
-            root_dir = require("lspconfig").util.root_pattern(
-              ".git",
-              "pnpm-workspace.yaml",
-              "pnpm-lock.yaml",
-              "yarn.lock",
-              "package-lock.json",
-              "bun.lockb"
-            ),
-            typescript = {
-              tsserver = {
-                maxTsServerMemory = 12288,
+      require("mason-lspconfig").setup({
+        handlers = {
+          -- default handler for all servers
+          function(server_name)
+            vim.lsp.enable(server_name)
+          end,
+          
+          -- custom handler for vtsls
+          ["vtsls"] = function()
+            vim.lsp.config('vtsls', {
+              root_dir = require("lspconfig").util.root_pattern(
+                ".git",
+                "pnpm-workspace.yaml",
+                "pnpm-lock.yaml",
+                "yarn.lock",
+                "package-lock.json",
+                "bun.lockb"
+              ),
+              typescript = {
+                tsserver = {
+                  maxTsServerMemory = 12288,
+                },
               },
-            },
-            experimental = {
-              completion = {
-                entriesLimit = 3,
+              experimental = {
+                completion = {
+                  entriesLimit = 3,
+                },
               },
-            },
-          })
-        end,
+            })
+            vim.lsp.enable('vtsls')
+          end,
+        }
       })
     end,
   },
