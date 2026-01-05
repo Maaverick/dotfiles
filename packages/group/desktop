@@ -57,9 +57,9 @@ brave-bin
 mpv
 qbittorrent
 wezterm
-hyprland-git
-hyprutils-git
-hypridle-git
+hyprland
+hyprutils
+hypridle
 brightnessctl
 waybar
 grim
@@ -69,4 +69,3 @@ kitty
 bluetui
 impala
 meld
-wdisplays

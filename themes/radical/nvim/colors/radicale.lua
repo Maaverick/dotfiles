@@ -86,7 +86,7 @@ local colors = {
   -- Highlight Colors
   highlight_current_line = "#d043cf", -- HIGHLIGHT_CURRENT_LINE
   highlight_range = "#fd43cd",        -- HIGHLIGHT_RANGE
-  highlight_selection = "#874df8",    -- HIGHLIGHT_CURRENT_SELECTION
+  highlight_selection = "#2A2850",    -- HIGHLIGHT_CURRENT_SELECTION
   highlight_match = "#9736c0",         -- HIGHLIGHT_MATCH
   highlight_addl_match = "#f179e1",     -- HIGHLIGHT_ADDL_MATCH
   highlight_read = "#ff5300",          -- HIGHLIGHT_READ_ACCESS
@@ -209,7 +209,7 @@ local highlights = {
   Structure = { fg = colors.lavender },
   Typedef = { fg = colors.lavender },
   
-  Special = { fg = colors.lavender_light },
+  Special = { fg = colors.ultra_medium },
   SpecialChar = { fg = colors.chartreuse_medium },
   Tag = { fg = colors.primary },
   Delimiter = { fg = colors.gray_300 },
