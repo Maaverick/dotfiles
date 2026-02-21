@@ -1,0 +1,42 @@
+
+alias clear='printf "\033c"'
+alias vim=nvim
+
+CMD_COLOR='--color=auto'
+
+alias ls="ls $CMD"
+alias ll="ls -alF $CMD_COLOR"
+alias la="ls -A $CMD_COLOR"
+alias l="ls -CF $CMD_COLOR"
+alias center='hyprctl dispatch "layoutmsg orientationcenter"'
+alias left='hyprctl dispatch "layoutmsg orientationleft"'
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+
+cd() {
+  builtin cd "${@:-$HOME}" && ls
+}
+
+osc52() {
+  local input
+  input=$(cat | base64 | tr -d '\n')
+  printf "\e]52;c;%s\a" "$input"
+}
+
+function zle-keymap-select {
+  if [[ $KEYMAP == vicmd ]]; then
+    echo -ne '\e[2 q'
+  else
+    echo -ne '\e[6 q'
+  fi
+}
+
+function zle-line-init {
+  echo -ne '\e[6 q'
+}
+
+zle -N zle-keymap-select
+zle -N zle-line-init
+KEYTIMEOUT=1

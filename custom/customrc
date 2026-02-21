@@ -1,0 +1,11 @@
+#!/bin/bash
+
+CUSTOM_RC="$HOME/dotfiles/custom"
+
+[[ -d "$CUSTOM_RC" ]] || exit 0
+
+[ -f "$CUSTOM_RC/envrc" ]   && . "$CUSTOM_RC/envrc"
+[ -f "$CUSTOM_RC/aliasrc" ] && . "$CUSTOM_RC/aliasrc"
+[ -f "$CUSTOM_RC/gitrc" ]   && . "$CUSTOM_RC/gitrc"
+[ -f "$CUSTOM_RC/historyrc" ]   && . "$CUSTOM_RC/historyrc"
+

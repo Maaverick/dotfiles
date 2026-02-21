@@ -9,6 +9,7 @@ return {
     { "<C-n>",      "<cmd>NvimTreeToggle<cr>",   desc = "Find file in filetree" },
   },
   opts = {
+    actions = { open_file = { window_picker = { enable = false } } },
     filters = {
       custom = { ".git", "node_modules", ".vscode" },
       dotfiles = true,
@@ -17,7 +18,7 @@ return {
     view = {
       adaptive_size = true,
       float = {
-        enable = true,
+        enable = false,
       },
     },
   },
