@@ -18,6 +18,7 @@ downgrade
 fzf
 git
 gnu-netcat
+httpie
 hyperfine
 inetutils
 iwd
