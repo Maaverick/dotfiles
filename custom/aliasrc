@@ -8,8 +8,8 @@ alias ls="ls $CMD"
 alias ll="ls -alF $CMD_COLOR"
 alias la="ls -A $CMD_COLOR"
 alias l="ls -CF $CMD_COLOR"
-alias center='hyprctl dispatch "layoutmsg orientationcenter"'
-alias left='hyprctl dispatch "layoutmsg orientationleft"'
+alias center="hyprctl dispatch 'hl.dsp.layout(\"orientationcenter\")'"
+alias left="hyprctl dispatch 'hl.dsp.layout(\"orientationleft\")'"
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
