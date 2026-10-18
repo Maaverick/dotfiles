@@ -5,8 +5,8 @@ return {
         vim.api.nvim_create_autocmd("FileType", {
             pattern = { "TelescopePrompt", "TelescopeResults", "TelescopePreview" },
             callback = function()
-                vim.opt_local.winbar = ""
+                vim.opt_local.statusline = ""
             end,
-            })
+        })
     end,
 }
