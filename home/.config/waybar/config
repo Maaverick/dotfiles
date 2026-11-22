@@ -58,7 +58,7 @@
   },
 	"memory": {
 		"interval": 5,
-		"format": "Mem {used}GiB {avail}GiB Swap {swapAvail}GiB"
+		"format": "Mem {used:0.2f}GiB {avail:0.2f}GiB Swap {swapAvail:0.2f}GiB"
 	},
 	"cpu": {
 		"interval": 5,
