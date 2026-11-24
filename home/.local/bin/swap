@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+# swap-screens.sh — exchange all workspaces (and their full tiling trees)
+# between the monitor this script is launched from and a destination monitor.
+# Requires Hyprland 0.55+ (Lua dispatchers).
+set -euo pipefail
+
+die() { printf 'error: %s\n' "$*" >&2; exit 1; }
+
+command -v hyprctl >/dev/null 2>&1 || die "hyprctl not found (Hyprland required)"
+command -v jq      >/dev/null 2>&1 || die "jq not found"
+
+clients_json=$(hyprctl clients -j)       || die "could not query hyprctl clients"
+monitors_json=$(hyprctl monitors -j)     || die "could not query hyprctl monitors"
+workspaces_json=$(hyprctl workspaces -j) || die "could not query hyprctl workspaces"
+
+for j in "$clients_json" "$monitors_json" "$workspaces_json"; do
+  [ "$(jq -r type <<<"$j")" = array ] || die "unexpected JSON data from hyprctl"
+done
+
+monitor_count=$(jq 'length' <<<"$monitors_json")
+[ "$monitor_count" -ge 2 ] || die "at least 2 monitors required (found $monitor_count)"
+
+monitor_label() {
+  jq -r --argjson m "$1" '
+    ([.[] | select(.id == $m)][0]) as $d |
+    (if ($d.description // "") == "" then $d.name else $d.description end)
+      + " [" + $d.name + ", " + ($d.width | tostring) + "x" + ($d.height | tostring) + "]"
+  ' <<<"$monitors_json"
+}
+
+monitor_name() {
+  jq -r --argjson m "$1" '[.[] | select(.id == $m)][0].name // empty' <<<"$monitors_json"
+}
+
+dispatch_lua() {
+  local expr=$1 out
+  out=$(hyprctl dispatch "$expr" 2>&1) || true
+  case "$out" in
+    *error*|*Error*|*Invalid*|*invalid*|*not\ found*)
+      printf 'warning: %s: %s\n' "$expr" "$out" >&2
+      ;;
+  esac
+}
+
+# ---- locate the window this script was launched from ----
+launcher_address=""
+launcher_pid=""
+pid=$$
+for _ in {1..20}; do
+  [[ "$pid" =~ ^[0-9]+$ ]] || break
+  [ "$pid" -gt 1 ] || break
+  addr=$(jq -r --argjson p "$pid" '[.[] | select(.pid == $p and .mapped == true) | .address] | .[0] // empty' <<<"$clients_json")
+  if [ -n "$addr" ]; then
+    launcher_address="$addr"
+    launcher_pid="$pid"
+    break
+  fi
+  pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ' || true)
+done
+
+if [ -z "$launcher_address" ]; then
+  active_json=$(hyprctl activewindow -j 2>/dev/null || true)
+  if [ -n "$active_json" ] && [ "$(jq -r type <<<"$active_json")" = object ]; then
+    addr=$(jq -r '.address // empty' <<<"$active_json")
+    if [ -n "$addr" ]; then
+      launcher_address="$addr"
+      launcher_pid=$(jq -r '.pid // empty' <<<"$active_json")
+    fi
+  fi
+fi
+
+if [ -n "$launcher_address" ]; then
+  source_id=$(jq -r --arg a "$launcher_address" '[.[] | select(.address == $a) | .monitor] | .[0] // empty' <<<"$clients_json")
+else
+  source_id=$(jq -r '[.[] | select(.focused == true) | .id] | .[0] // empty' <<<"$monitors_json")
+fi
+[[ "$source_id" =~ ^[0-9]+$ ]] || die "could not determine the source monitor"
+jq -e --argjson s "$source_id" 'any(.[]; .id == $s)' <<<"$monitors_json" >/dev/null || die "source monitor $source_id not found"
+
+# ---- destination candidates (every monitor except the source) ----
+mapfile -t dest_ids < <(jq -r --argjson s "$source_id" '[.[] | select(.id != $s) | .id] | .[]' <<<"$monitors_json")
+
+if [ "$monitor_count" -eq 2 ]; then
+  dest_id=${dest_ids[0]}
+else
+  printf 'Source monitor: %s\n\n' "$(monitor_label "$source_id")"
+  printf 'Select the destination monitor:\n'
+  i=1
+  for mid in "${dest_ids[@]}"; do
+    printf '  %d) %s\n' "$i" "$(monitor_label "$mid")"
+    i=$((i + 1))
+  done
+  printf 'Number: '
+  read -r choice || die "no input"
+  [[ "$choice" =~ ^[0-9]+$ ]] || die "invalid selection: $choice"
+  [ "$choice" -ge 1 ] && [ "$choice" -le "${#dest_ids[@]}" ] || die "selection out of range: $choice"
+  dest_id=${dest_ids[$((choice - 1))]}
+fi
+
+src_name=$(monitor_name "$source_id")
+dst_name=$(monitor_name "$dest_id")
+[ -n "$src_name" ] && [ -n "$dst_name" ] || die "could not resolve monitor names"
+
+printf 'Swapping all workspaces: %s  <->  %s\n' "$(monitor_label "$source_id")" "$(monitor_label "$dest_id")"
+
+# ---- snapshot workspace state BEFORE any changes ----
+src_active=$(jq -r --argjson m "$source_id" '[.[] | select(.id == $m)][0].activeWorkspace.id // empty' <<<"$monitors_json")
+dst_active=$(jq -r --argjson m "$dest_id"    '[.[] | select(.id == $m)][0].activeWorkspace.id // empty' <<<"$monitors_json")
+
+mapfile -t src_ws_ids < <(jq -r --arg m "$src_name" '
+  [.[] | select(.monitor == $m and ((.type // "normal") == "normal")) | .id] | .[]' <<<"$workspaces_json")
+mapfile -t dst_ws_ids < <(jq -r --arg m "$dst_name" '
+  [.[] | select(.monitor == $m and ((.type // "normal") == "normal")) | .id] | .[]' <<<"$workspaces_json")
+
+# ---- swap the active workspaces first (preserves the tiling tree exactly) ----
+dispatch_lua "hl.dsp.workspace.swap_monitors({ monitor1 = ${source_id}, monitor2 = ${dest_id} })"
+
+# ---- exchange every remaining workspace (each keeps its own tiling tree) ----
+for wid in "${src_ws_ids[@]}"; do
+  [ "$wid" = "$src_active" ] && continue
+  dispatch_lua "hl.dsp.workspace.move({ workspace = ${wid}, monitor = ${dest_id} })"
+done
+for wid in "${dst_ws_ids[@]}"; do
+  [ "$wid" = "$dst_active" ] && continue
+  dispatch_lua "hl.dsp.workspace.move({ workspace = ${wid}, monitor = ${source_id} })"
+done
+
+# ---- refocus the launching window (it moved with its workspace) ----
+if [ -n "$launcher_address" ]; then
+  hyprctl dispatch "hl.dsp.focus({ window = \"address:${launcher_address}\" })" >/dev/null 2>&1 || true
+fi
