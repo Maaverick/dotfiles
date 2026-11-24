@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    printf 'Usage: %s <youtube-url>\n' "${0##*/}" >&2
+}
+
+for dep in yt-dlp vlc ffmpeg tmux; do
+    if ! command -v "$dep" >/dev/null 2>&1; then
+        printf 'Error: required command not found: %s\n' "$dep" >&2
+        exit 1
+    fi
+done
+
+tmpdir=''
+supervisor_pid=''
+
+cleanup() {
+    if [[ -n ${supervisor_pid:-} ]]; then
+        kill "$supervisor_pid" 2>/dev/null || true
+        wait "$supervisor_pid" 2>/dev/null || true
+    fi
+    if [[ -n ${tmpdir:-} && -d $tmpdir ]]; then
+        rm -rf -- "$tmpdir"
+    fi
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap 'exit 129' HUP
+
+if [[ -n ${YT_VLC_INNER:-} ]]; then
+    tmpdir=${YT_VLC_TMPDIR:-}
+    file=${YT_VLC_FILE:-}
+    session=${YT_VLC_SESSION:-}
+
+    for name in YT_VLC_TMPDIR YT_VLC_FILE YT_VLC_SESSION; do
+        if [[ -z ${!name:-} ]]; then
+            printf 'Error: missing inner environment variable: %s\n' "$name" >&2
+            exit 1
+        fi
+    done
+
+    (
+        vlc_pid=''
+        stop_requested=0
+        trap 'stop_requested=1; if [[ -n ${vlc_pid:-} ]]; then kill "$vlc_pid" 2>/dev/null || true; fi' EXIT
+        trap 'exit 0' HUP INT TERM
+
+        vlc -I qt --qt-minimal-view --no-one-instance "$file" \
+            >"$tmpdir/vlc.log" 2>&1 &
+        vlc_pid=$!
+        wait "$vlc_pid" || true
+
+        if (( stop_requested == 0 )); then
+            tmux kill-session -t "$session" 2>/dev/null || true
+        fi
+    ) &
+    supervisor_pid=$!
+
+    printf 'VLC is running in detached tmux session %s.\n' "$session"
+    printf 'Attach: tmux a -t %s\n' "$session"
+    printf 'Close:  tmux kill-session -t %s\n' "$session"
+    printf 'Or attach and type exit to close the shell.\n'
+
+    bash --noprofile --norc -i || true
+    exit 0
+fi
+
+if (( $# != 1 )); then
+    usage
+    exit 2
+fi
+
+url=$1
+tmpdir=$(mktemp -d /tmp/ytvlc.XXXXXX)
+
+if ! yt-dlp --no-playlist -f 'bv*+ba/b' --merge-output-format mp4 \
+        -o "$tmpdir/video.%(ext)s" "$url"; then
+    printf 'Error: download failed for %s\n' "$url" >&2
+    exit 1
+fi
+
+shopt -s nullglob
+files=()
+for candidate in "$tmpdir"/video.*; do
+    case $candidate in
+        *.part|*.ytdl) continue ;;
+    esac
+    files+=("$candidate")
+done
+shopt -u nullglob
+
+if (( ${#files[@]} != 1 )); then
+    printf 'Error: expected one downloaded file in %s, found %d\n' \
+        "$tmpdir" "${#files[@]}" >&2
+    exit 1
+fi
+
+file=${files[0]}
+session="ytvlc-$$"
+script_path=$(readlink -f -- "$0" 2>/dev/null || printf '%s\n' "$0")
+
+if ! tmux new-session -d -s "$session" -c "$PWD" \
+        -e "DISPLAY=${DISPLAY:-}" \
+        -e "XAUTHORITY=${XAUTHORITY:-}" \
+        -e "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-}" \
+        -e "DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-}" \
+        -e "YT_VLC_INNER=1" \
+        -e "YT_VLC_TMPDIR=$tmpdir" \
+        -e "YT_VLC_FILE=$file" \
+        -e "YT_VLC_SESSION=$session" \
+        "$script_path"; then
+    printf 'Error: failed to create tmux session %s\n' "$session" >&2
+    exit 1
+fi
+
+# The tmux session now owns the file and its cleanup.
+tmpdir=''
+
+printf 'Downloaded: %s\n' "$file"
+printf 'VLC is running in detached tmux session %s.\n' "$session"
+printf 'Attach: tmux a -t %s\n' "$session"
+printf 'Close:  tmux kill-session -t %s\n' "$session"
